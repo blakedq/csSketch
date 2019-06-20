@@ -105,11 +105,7 @@ __webpack_require__.r(__webpack_exports__);
 
 /* harmony default export */ __webpack_exports__["default"] = (function () {
   var doc = sketch__WEBPACK_IMPORTED_MODULE_0___default.a.getSelectedDocument();
-  var selectedLayers = doc.selectedLayers; // selectedLayers.forEach(layer => {
-  //   layer.style.fontSize = 50;
-  // })
-
-  var selectedCount = selectedLayers.length;
+  var selectedLayers = doc.selectedLayers;
   var pasteBoard = NSPasteboard.generalPasteboard();
   var input = pasteBoard.stringForType(NSPasteboardTypeString);
   var lines = input.split("\n");
@@ -118,12 +114,9 @@ __webpack_require__.r(__webpack_exports__);
     var prop = declaration.slice(0, colon).trim();
     var val = declaration.slice(colon + 1).trim();
     selectedLayers.forEach(function (layer) {
-      //alertM(layer.style.fontWeight);
       switch (prop) {
         case 'font-size':
-          console.log(layer.style.fontSize);
           layer.style.fontSize = parseFloat(val);
-          console.log(layer.style.fontSize);
           break;
 
         case 'color':
@@ -152,15 +145,11 @@ __webpack_require__.r(__webpack_exports__);
           layer.style.fontStyle = val === 'italic' || val === 'oblique' ? 'italic' : undefined;
           break;
 
-        default: //alertM('Unknown CSS property: ' + prop);
-
+        default:
+          alertM('Unknown CSS property: ' + prop);
       }
     });
   });
-
-  if (selectedCount === 0) {//alertM('No layers are selected.')
-  } else {//alertM(`${selectedCount} layers selected.`)
-    }
 });
 
 function convertWeight(weight) {
@@ -250,7 +239,7 @@ function convertFontFamily(fonts) {
     fonts = fonts.substring(0, firstFont);
   }
 
-  return fonts.replace(/"/g, '');
+  return fonts.replace(/"|'/g, '');
 }
 
 function stringToHex(str) {

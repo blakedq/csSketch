@@ -3,10 +3,6 @@ import sketch from 'sketch'
 export default function() {
   const doc = sketch.getSelectedDocument();
   const selectedLayers = doc.selectedLayers;
-  // selectedLayers.forEach(layer => {
-  //   layer.style.fontSize = 50;
-  // })
-  const selectedCount = selectedLayers.length
   const pasteBoard = NSPasteboard.generalPasteboard();
   const input = pasteBoard.stringForType(NSPasteboardTypeString);
   const lines = input.split("\n");
@@ -16,12 +12,9 @@ export default function() {
     let val = declaration.slice(colon+1).trim();
 
     selectedLayers.forEach(layer => {
-      //alertM(layer.style.fontWeight);
       switch(prop)  {
         case 'font-size':
-          console.log(layer.style.fontSize);
           layer.style.fontSize = parseFloat(val);
-          console.log(layer.style.fontSize);
           break;
         case 'color':
           layer.style.textColor = val;
@@ -44,16 +37,10 @@ export default function() {
           layer.style.fontStyle = (val === 'italic' || val === 'oblique' ? 'italic' : undefined);
           break;
         default:
-          //alertM('Unknown CSS property: ' + prop);
+          alertM('Unknown CSS property: ' + prop);
       }
     })
   })
-
-  if (selectedCount === 0) {
-    //alertM('No layers are selected.')
-  } else {
-    //alertM(`${selectedCount} layers selected.`)
-  }
 }
 
 function convertWeight(weight)  {
@@ -134,7 +121,7 @@ function convertFontFamily(fonts) {
   if(firstFont !== -1)  {
     fonts = fonts.substring(0,firstFont);
   }
-  return fonts.replace(/"/g,'');
+  return fonts.replace(/"|'/g,'');
 }
 
 function stringToHex(str)  {
