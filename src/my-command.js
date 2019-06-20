@@ -8,38 +8,39 @@ export default function() {
   const lines = input.split("\n");
   lines.forEach(declaration => {
     let colon = declaration.indexOf(":");
-    let prop = declaration.slice(0, colon).trim();
-    let val = declaration.slice(colon+1).trim();
-
-    selectedLayers.forEach(layer => {
-      switch(prop)  {
-        case 'font-size':
-          layer.style.fontSize = parseFloat(val);
-          break;
-        case 'color':
-          layer.style.textColor = val;
-          break;
-        case 'line-height':
-          layer.style.lineHeight = parseFloat(val);
-          break;
-        case 'font-weight':
-          layer.style.fontWeight = convertWeight(val);
-          break;
-        case 'text-decoration':
-          let textDecorations = convertDecoration(val);
-          layer.style.textUnderline = textDecorations[0];
-          layer.style.textStrikethrough = textDecorations[1];
-          break;
-        case 'font-family':
-          layer.style.fontFamily = convertFontFamily(val);
-          break;
-        case 'font-style':
-          layer.style.fontStyle = (val === 'italic' || val === 'oblique' ? 'italic' : undefined);
-          break;
-        default:
-          alertM('Unknown CSS property: ' + prop);
-      }
-    })
+    if(colon !== -1)  {
+      let prop = declaration.slice(0, colon).trim();
+      let val = declaration.slice(colon+1).trim();
+      selectedLayers.forEach(layer => {
+        switch(prop)  {
+          case 'font-size':
+            layer.style.fontSize = parseFloat(val);
+            break;
+          case 'color':
+            layer.style.textColor = val;
+            break;
+          case 'line-height':
+            layer.style.lineHeight = parseFloat(val);
+            break;
+          case 'font-weight':
+            layer.style.fontWeight = convertWeight(val);
+            break;
+          case 'text-decoration':
+            let textDecorations = convertDecoration(val);
+            layer.style.textUnderline = textDecorations[0];
+            layer.style.textStrikethrough = textDecorations[1];
+            break;
+          case 'font-family':
+            layer.style.fontFamily = convertFontFamily(val);
+            break;
+          case 'font-style':
+            layer.style.fontStyle = (val === 'italic' || val === 'oblique' ? 'italic' : undefined);
+            break;
+          default:
+            alertM('Unknown CSS property: ' + prop);
+        }
+      })
+    }
   })
 }
 

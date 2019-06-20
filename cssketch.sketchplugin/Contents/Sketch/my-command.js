@@ -111,44 +111,47 @@ __webpack_require__.r(__webpack_exports__);
   var lines = input.split("\n");
   lines.forEach(function (declaration) {
     var colon = declaration.indexOf(":");
-    var prop = declaration.slice(0, colon).trim();
-    var val = declaration.slice(colon + 1).trim();
-    selectedLayers.forEach(function (layer) {
-      switch (prop) {
-        case 'font-size':
-          layer.style.fontSize = parseFloat(val);
-          break;
 
-        case 'color':
-          layer.style.textColor = val;
-          break;
+    if (colon !== -1) {
+      var prop = declaration.slice(0, colon).trim();
+      var val = declaration.slice(colon + 1).trim();
+      selectedLayers.forEach(function (layer) {
+        switch (prop) {
+          case 'font-size':
+            layer.style.fontSize = parseFloat(val);
+            break;
 
-        case 'line-height':
-          layer.style.lineHeight = parseFloat(val);
-          break;
+          case 'color':
+            layer.style.textColor = val;
+            break;
 
-        case 'font-weight':
-          layer.style.fontWeight = convertWeight(val);
-          break;
+          case 'line-height':
+            layer.style.lineHeight = parseFloat(val);
+            break;
 
-        case 'text-decoration':
-          var textDecorations = convertDecoration(val);
-          layer.style.textUnderline = textDecorations[0];
-          layer.style.textStrikethrough = textDecorations[1];
-          break;
+          case 'font-weight':
+            layer.style.fontWeight = convertWeight(val);
+            break;
 
-        case 'font-family':
-          layer.style.fontFamily = convertFontFamily(val);
-          break;
+          case 'text-decoration':
+            var textDecorations = convertDecoration(val);
+            layer.style.textUnderline = textDecorations[0];
+            layer.style.textStrikethrough = textDecorations[1];
+            break;
 
-        case 'font-style':
-          layer.style.fontStyle = val === 'italic' || val === 'oblique' ? 'italic' : undefined;
-          break;
+          case 'font-family':
+            layer.style.fontFamily = convertFontFamily(val);
+            break;
 
-        default:
-          alertM('Unknown CSS property: ' + prop);
-      }
-    });
+          case 'font-style':
+            layer.style.fontStyle = val === 'italic' || val === 'oblique' ? 'italic' : undefined;
+            break;
+
+          default:
+            alertM('Unknown CSS property: ' + prop);
+        }
+      });
+    }
   });
 });
 
