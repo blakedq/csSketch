@@ -36,6 +36,9 @@ export default function() {
           case 'font-style':
             layer.style.fontStyle = (val === 'italic' || val === 'oblique' ? 'italic' : undefined);
             break;
+          case 'letter-spacing':
+            layer.style.kerning = convertKerning(val);
+            break;
           default:
             alertM('Unknown CSS property: ' + prop);
         }
@@ -123,6 +126,11 @@ function convertFontFamily(fonts) {
     fonts = fonts.substring(0,firstFont);
   }
   return fonts.replace(/"|'/g,'');
+}
+
+function convertKerning(kerning)  {
+  let kerning = parseFloat(kerning);
+  return isNaN(kerning) ? 0 : kerning;
 }
 
 function stringToHex(str)  {
