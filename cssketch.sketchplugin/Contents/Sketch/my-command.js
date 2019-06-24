@@ -104,60 +104,74 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var sketch__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(sketch__WEBPACK_IMPORTED_MODULE_0__);
 
 /* harmony default export */ __webpack_exports__["default"] = (function () {
-  var doc = sketch__WEBPACK_IMPORTED_MODULE_0___default.a.getSelectedDocument();
-  var selectedLayers = doc.selectedLayers;
-  var pasteBoard = NSPasteboard.generalPasteboard();
-  var input = pasteBoard.stringForType(NSPasteboardTypeString);
-  var lines = input.split("\n");
-  lines.forEach(function (declaration) {
+  var selectedLayers = sketch__WEBPACK_IMPORTED_MODULE_0___default.a.getSelectedDocument().selectedLayers;
+  var lines = NSPasteboard.generalPasteboard().stringForType(NSPasteboardTypeString).split("\n");
+  var sketchStyles = preprocessStyles(lines);
+  selectedLayers.forEach(function (layer) {
+    console.log(sketchStyles[0]);
+    layer.style.fontSize = sketchStyles[0];
+    layer.style.textColor = sketchStyles[1];
+    layer.style.lineHeight = sketchStyles[2];
+    layer.style.fontWeight = sketchStyles[3];
+    layer.style.textUnderline = sketchStyles[4];
+    layer.style.textStrikethrough = sketchStyles[5];
+    layer.style.fontFamily = sketchStyles[6];
+    layer.style.fontStyle = sketchStyles[7];
+    layer.style.kerning = sketchStyles[8];
+  });
+});
+
+function preprocessStyles(styleLines) {
+  var sketchStyles = [];
+  styleLines.forEach(function (declaration) {
     var colon = declaration.indexOf(":");
 
     if (colon !== -1) {
       var prop = declaration.slice(0, colon).trim();
       var val = declaration.slice(colon + 1).trim();
-      selectedLayers.forEach(function (layer) {
-        switch (prop) {
-          case 'font-size':
-            layer.style.fontSize = parseFloat(val);
-            break;
 
-          case 'color':
-            layer.style.textColor = val;
-            break;
+      switch (prop) {
+        case 'font-size':
+          sketchStyles[0] = parseFloat(val);
+          break;
 
-          case 'line-height':
-            layer.style.lineHeight = parseFloat(val);
-            break;
+        case 'color':
+          sketchStyles[1] = val;
+          break;
 
-          case 'font-weight':
-            layer.style.fontWeight = convertWeight(val);
-            break;
+        case 'line-height':
+          sketchStyles[2] = parseFloat(val);
+          break;
 
-          case 'text-decoration':
-            var textDecorations = convertDecoration(val);
-            layer.style.textUnderline = textDecorations[0];
-            layer.style.textStrikethrough = textDecorations[1];
-            break;
+        case 'font-weight':
+          sketchStyles[3] = convertWeight(val);
+          break;
 
-          case 'font-family':
-            layer.style.fontFamily = convertFontFamily(val);
-            break;
+        case 'text-decoration':
+          var textDecorations = convertDecoration(val);
+          sketchStyles[4] = textDecorations[0];
+          sketchStyles[5] = textDecorations[1];
+          break;
 
-          case 'font-style':
-            layer.style.fontStyle = convertFontStyle(val);
-            break;
+        case 'font-family':
+          sketchStyles[6] = convertFontFamily(val);
+          break;
 
-          case 'letter-spacing':
-            layer.style.kerning = convertKerning(val);
-            break;
+        case 'font-style':
+          sketchStyles[7] = convertFontStyle(val);
+          break;
 
-          default:
-            alertM('Unknown CSS property: ' + prop);
-        }
-      });
+        case 'letter-spacing':
+          sketchStyles[8] = convertKerning(val);
+          break;
+
+        default:
+          alertM('Unknown CSS property: ' + prop);
+      }
     }
   });
-});
+  return sketchStyles;
+}
 
 function convertWeight(weight) {
   if (weight <= 50 || weight >= 950) return 5;
@@ -227,18 +241,6 @@ function convertDecoration(dec) {
   return decorations;
 }
 
-function convertColor(orig) {
-  var parsedColor = orig.match(/^[^\d]*\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d\.]+))?\)\s*$/);
-  var newColor = "#";
-
-  for (var i = 1; i < 4; ++i) {
-    newColor += stringToHex(parsedColor[i]);
-  }
-
-  newColor += stringToHex(isNaN(parsedColor[4]) ? 255 : parsedColor[4] * 255);
-  return newColor;
-}
-
 function convertFontFamily(fonts) {
   var firstFont = fonts.indexOf(',');
 
@@ -249,17 +251,13 @@ function convertFontFamily(fonts) {
   return fonts.replace(/"|'/g, '');
 }
 
-function convertKerning(kerning) {
-  var num = parseFloat(kerning);
-  return isNaN(num) ? 0 : num;
-}
-
 function convertFontStyle(style) {
   return style === 'italic' || style === 'oblique' ? 'italic' : undefined;
 }
 
-function stringToHex(str) {
-  return parseInt(str).toString(16).padStart(2, "0");
+function convertKerning(kerning) {
+  var num = parseFloat(kerning);
+  return isNaN(num) ? 0 : num;
 }
 
 function alertM(alert) {

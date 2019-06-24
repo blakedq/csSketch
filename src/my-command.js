@@ -1,50 +1,65 @@
 import sketch from 'sketch'
 
 export default function() {
-  const doc = sketch.getSelectedDocument();
-  const selectedLayers = doc.selectedLayers;
-  const pasteBoard = NSPasteboard.generalPasteboard();
-  const input = pasteBoard.stringForType(NSPasteboardTypeString);
-  const lines = input.split("\n");
-  lines.forEach(declaration => {
+  const selectedLayers = sketch.getSelectedDocument().selectedLayers;
+  const lines = NSPasteboard.generalPasteboard().stringForType(NSPasteboardTypeString).split("\n");
+
+  let sketchStyles = preprocessStyles(lines);
+
+  selectedLayers.forEach(layer => {
+    console.log(sketchStyles[0]);
+    layer.style.fontSize = sketchStyles[0];
+    layer.style.textColor = sketchStyles[1];
+    layer.style.lineHeight = sketchStyles[2];
+    layer.style.fontWeight = sketchStyles[3];
+    layer.style.textUnderline = sketchStyles[4];
+    layer.style.textStrikethrough = sketchStyles[5];
+    layer.style.fontFamily = sketchStyles[6];
+    layer.style.fontStyle = sketchStyles[7];
+    layer.style.kerning = sketchStyles[8];
+  })
+}
+
+function preprocessStyles(styleLines) {
+  let sketchStyles = [];
+  styleLines.forEach(declaration => {
     let colon = declaration.indexOf(":");
     if(colon !== -1)  {
       let prop = declaration.slice(0, colon).trim();
       let val = declaration.slice(colon+1).trim();
-      selectedLayers.forEach(layer => {
-        switch(prop)  {
-          case 'font-size':
-            layer.style.fontSize = parseFloat(val);
-            break;
-          case 'color':
-            layer.style.textColor = val;
-            break;
-          case 'line-height':
-            layer.style.lineHeight = parseFloat(val);
-            break;
-          case 'font-weight':
-            layer.style.fontWeight = convertWeight(val);
-            break;
-          case 'text-decoration':
-            let textDecorations = convertDecoration(val);
-            layer.style.textUnderline = textDecorations[0];
-            layer.style.textStrikethrough = textDecorations[1];
-            break;
-          case 'font-family':
-            layer.style.fontFamily = convertFontFamily(val);
-            break;
-          case 'font-style':
-            layer.style.fontStyle = convertFontStyle(val);
-            break;
-          case 'letter-spacing':
-            layer.style.kerning = convertKerning(val);
-            break;
-          default:
-            alertM('Unknown CSS property: ' + prop);
-        }
-      })
+      switch(prop)  {
+        case 'font-size':
+          sketchStyles[0] = parseFloat(val);
+          break;
+        case 'color':
+          sketchStyles[1] = val;
+          break;
+        case 'line-height':
+          sketchStyles[2] = parseFloat(val);
+          break;
+        case 'font-weight':
+          sketchStyles[3] = convertWeight(val);
+          break;
+        case 'text-decoration':
+          let textDecorations = convertDecoration(val);
+          sketchStyles[4] = textDecorations[0];
+          sketchStyles[5] = textDecorations[1];
+          break;
+        case 'font-family':
+          sketchStyles[6] = convertFontFamily(val);
+          break;
+        case 'font-style':
+          sketchStyles[7] = convertFontStyle(val);
+          break;
+        case 'letter-spacing':
+          sketchStyles[8] = convertKerning(val);
+          break;
+        default:
+          alertM('Unknown CSS property: ' + prop);
+      }
     }
   })
+  return sketchStyles;
 }
 
 function convertWeight(weight)  {
@@ -110,16 +125,6 @@ function convertDecoration(dec) {
   return decorations;
 }
 
-function convertColor(orig) {
-  let parsedColor = orig.match(/^[^\d]*\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d\.]+))?\)\s*$/);
-  let newColor = "#";
-  for(let i = 1; i < 4; ++i)  {
-    newColor += stringToHex(parsedColor[i]);
-  }
-  newColor += stringToHex(isNaN(parsedColor[4]) ? 255 : parsedColor[4] * 255);
-  return newColor;
-}
-
 function convertFontFamily(fonts) {
   let firstFont = fonts.indexOf(',');
   if(firstFont !== -1)  {
@@ -128,17 +133,13 @@ function convertFontFamily(fonts) {
   return fonts.replace(/"|'/g,'');
 }
 
-function convertKerning(kerning)  {
-  let num = parseFloat(kerning);
-  return isNaN(num) ? 0 : num;
-}
-
 function convertFontStyle(style)  {
   return style === 'italic' || style === 'oblique' ? 'italic' : undefined;
 }
 
-function stringToHex(str)  {
-  return parseInt(str).toString(16).padStart(2, "0");
+function convertKerning(kerning)  {
+  let num = parseFloat(kerning);
+  return isNaN(num) ? 0 : num;
 }
 
 function alertM(alert)  {
