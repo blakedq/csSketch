@@ -34,7 +34,7 @@ export default function() {
             layer.style.fontFamily = convertFontFamily(val);
             break;
           case 'font-style':
-            layer.style.fontStyle = (val === 'italic' || val === 'oblique' ? 'italic' : undefined);
+            layer.style.fontStyle = convertFontStyle(val);
             break;
           case 'letter-spacing':
             layer.style.kerning = convertKerning(val);
@@ -129,8 +129,12 @@ function convertFontFamily(fonts) {
 }
 
 function convertKerning(kerning)  {
-  let kerning = parseFloat(kerning);
-  return isNaN(kerning) ? 0 : kerning;
+  let num = parseFloat(kerning);
+  return isNaN(num) ? 0 : num;
+}
+
+function convertFontStyle(style)  {
+  return style === 'italic' || style === 'oblique' ? 'italic' : undefined;
 }
 
 function stringToHex(str)  {
