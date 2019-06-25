@@ -119,6 +119,17 @@ __webpack_require__.r(__webpack_exports__);
     layer.style.kerning = sketchStyles[8];
     layer.style.textTransform = sketchStyles[9];
     layer.style.fontVariant = sketchStyles[10];
+    layer.style.shadows.enabled = sketchStyles[11];
+    console.log(sketchStyles);
+
+    if (sketchStyles[11]) {
+      layer.style.shadows = [{
+        x: sketchStyles[12],
+        y: sketchStyles[13],
+        blur: sketchStyles[14],
+        color: sketchStyles[15]
+      }];
+    }
   });
 });
 
@@ -172,6 +183,21 @@ function preprocessStyles(styleLines) {
 
         case 'font-variant':
           sketchStyles[10] = convertVariant(val);
+          break;
+
+        case 'text-shadow':
+          var textShadows = convertTextShadows(val);
+
+          if (textShadows) {
+            sketchStyles[11] = true;
+
+            for (var i = 0; i < 4; ++i) {
+              sketchStyles[12 + i] = textShadows[i];
+            }
+          } else {
+            sketchStyles[11] = textShadows;
+          }
+
           break;
 
         default:
@@ -275,6 +301,25 @@ function convertTransform(transform) {
 
 function convertVariant(variant) {
   return variant === 'small-caps' ? variant : undefined;
+}
+
+function convertTextShadows(shadow) {
+  var rgb = shadow.indexOf(')');
+
+  if (rgb === -1) {
+    return false;
+  } else {
+    var rgbStr = shadow.substring(0, rgb + 1);
+    shadow = shadow.substring(rgb + 2);
+    shadow = shadow.split(' ');
+
+    for (var i = 0; i < 3; ++i) {
+      shadow[i] = parseFloat(shadow[i]);
+    }
+
+    shadow.push(rgbStr);
+    return shadow;
+  }
 }
 
 function alertM(alert) {

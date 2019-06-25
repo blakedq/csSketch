@@ -18,6 +18,18 @@ export default function() {
     layer.style.kerning = sketchStyles[8];
     layer.style.textTransform = sketchStyles[9];
     layer.style.fontVariant = sketchStyles[10];
+    layer.style.shadows.enabled = sketchStyles[11];
+    console.log(sketchStyles);
+    if (sketchStyles[11]) {
+      layer.style.shadows = [
+        {
+          x: sketchStyles[12],
+          y: sketchStyles[13],
+          blur: sketchStyles[14],
+          color: sketchStyles[15]
+        }
+      ]
+    }
   })
 }
 
@@ -60,6 +72,17 @@ function preprocessStyles(styleLines) {
           break;
         case 'font-variant':
           sketchStyles[10] = convertVariant(val);
+          break;
+        case 'text-shadow':
+          let textShadows = convertTextShadows(val);
+          if (textShadows) {
+            sketchStyles[11] = true;
+            for(let i = 0; i < 4; ++i)  {
+              sketchStyles[12 + i] = textShadows[i];
+            }
+          } else {
+            sketchStyles[11] = textShadows;
+          }
           break;
         default:
           alertM('Unknown CSS property: ' + prop);
@@ -155,6 +178,22 @@ function convertTransform(transform)  {
 
 function convertVariant(variant)  {
   return variant === 'small-caps' ? variant : undefined;
+}
+
+function convertTextShadows(shadow) {
+  let rgb = shadow.indexOf(')');
+  if (rgb === -1) {
+    return false;
+  } else {
+    let rgbStr = shadow.substring(0, rgb + 1);
+    shadow = shadow.substring(rgb + 2);
+    shadow = shadow.split(' ');
+    for(let i = 0; i < 3; ++i)  {
+      shadow[i] = parseFloat(shadow[i]);
+    }
+    shadow.push(rgbStr);
+    return shadow;
+  }
 }
 
 function alertM(alert)  {
