@@ -7,7 +7,6 @@ export default function() {
   let sketchStyles = preprocessStyles(lines);
 
   selectedLayers.forEach(layer => {
-    console.log(sketchStyles[0]);
     layer.style.fontSize = sketchStyles[0];
     layer.style.textColor = sketchStyles[1];
     layer.style.lineHeight = sketchStyles[2];
@@ -17,6 +16,8 @@ export default function() {
     layer.style.fontFamily = sketchStyles[6];
     layer.style.fontStyle = sketchStyles[7];
     layer.style.kerning = sketchStyles[8];
+    layer.style.textTransform = sketchStyles[9];
+    layer.style.fontVariant = sketchStyles[10];
   })
 }
 
@@ -53,6 +54,12 @@ function preprocessStyles(styleLines) {
           break;
         case 'letter-spacing':
           sketchStyles[8] = convertKerning(val);
+          break;
+        case 'text-transform':
+          sketchStyles[9] = convertTransform(val);
+          break;
+        case 'font-variant':
+          sketchStyles[10] = convertVariant(val);
           break;
         default:
           alertM('Unknown CSS property: ' + prop);
@@ -140,6 +147,14 @@ function convertFontStyle(style)  {
 function convertKerning(kerning)  {
   let num = parseFloat(kerning);
   return isNaN(num) ? 0 : num;
+}
+
+function convertTransform(transform)  {
+  return transform === 'capitalize' ? 'none' : transform;
+}
+
+function convertVariant(variant)  {
+  return variant === 'small-caps' ? variant : undefined;
 }
 
 function alertM(alert)  {
