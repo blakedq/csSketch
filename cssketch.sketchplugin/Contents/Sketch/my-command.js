@@ -91,6 +91,123 @@ var exports =
 /************************************************************************/
 /******/ ({
 
+/***/ "./node_modules/js-levenshtein/index.js":
+/*!**********************************************!*\
+  !*** ./node_modules/js-levenshtein/index.js ***!
+  \**********************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+module.exports = (function()
+{
+  function _min(d0, d1, d2, bx, ay)
+  {
+    return d0 < d1 || d2 < d1
+        ? d0 > d2
+            ? d2 + 1
+            : d0 + 1
+        : bx === ay
+            ? d1
+            : d1 + 1;
+  }
+
+  return function(a, b)
+  {
+    if (a === b) {
+      return 0;
+    }
+
+    if (a.length > b.length) {
+      var tmp = a;
+      a = b;
+      b = tmp;
+    }
+
+    var la = a.length;
+    var lb = b.length;
+
+    while (la > 0 && (a.charCodeAt(la - 1) === b.charCodeAt(lb - 1))) {
+      la--;
+      lb--;
+    }
+
+    var offset = 0;
+
+    while (offset < la && (a.charCodeAt(offset) === b.charCodeAt(offset))) {
+      offset++;
+    }
+
+    la -= offset;
+    lb -= offset;
+
+    if (la === 0 || lb < 3) {
+      return lb;
+    }
+
+    var x = 0;
+    var y;
+    var d0;
+    var d1;
+    var d2;
+    var d3;
+    var dd;
+    var dy;
+    var ay;
+    var bx0;
+    var bx1;
+    var bx2;
+    var bx3;
+
+    var vector = [];
+
+    for (y = 0; y < la; y++) {
+      vector.push(y + 1);
+      vector.push(a.charCodeAt(offset + y));
+    }
+
+    var len = vector.length - 1;
+
+    for (; x < lb - 3;) {
+      bx0 = b.charCodeAt(offset + (d0 = x));
+      bx1 = b.charCodeAt(offset + (d1 = x + 1));
+      bx2 = b.charCodeAt(offset + (d2 = x + 2));
+      bx3 = b.charCodeAt(offset + (d3 = x + 3));
+      dd = (x += 4);
+      for (y = 0; y < len; y += 2) {
+        dy = vector[y];
+        ay = vector[y + 1];
+        d0 = _min(dy, d0, d1, bx0, ay);
+        d1 = _min(d0, d1, d2, bx1, ay);
+        d2 = _min(d1, d2, d3, bx2, ay);
+        dd = _min(d2, d3, dd, bx3, ay);
+        vector[y] = dd;
+        d3 = d2;
+        d2 = d1;
+        d1 = d0;
+        d0 = dy;
+      }
+    }
+
+    for (; x < lb;) {
+      bx0 = b.charCodeAt(offset + (d0 = x));
+      dd = ++x;
+      for (y = 0; y < len; y += 2) {
+        dy = vector[y];
+        vector[y] = dd = _min(dy, d0, dd, bx0, vector[y + 1]);
+        d0 = dy;
+      }
+    }
+
+    return dd;
+  };
+})();
+
+
+
+/***/ }),
+
 /***/ "./src/my-command.js":
 /*!***************************!*\
   !*** ./src/my-command.js ***!
@@ -103,6 +220,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var sketch__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! sketch */ "sketch");
 /* harmony import */ var sketch__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(sketch__WEBPACK_IMPORTED_MODULE_0__);
 
+
+var levenshtein = __webpack_require__(/*! js-levenshtein */ "./node_modules/js-levenshtein/index.js");
+
+var systemFonts = NSFontManager.sharedFontManager().availableFontFamilies();
 /* harmony default export */ __webpack_exports__["default"] = (function () {
   var selectedLayers = sketch__WEBPACK_IMPORTED_MODULE_0___default.a.getSelectedDocument().selectedLayers;
   var lines = NSPasteboard.generalPasteboard().stringForType(NSPasteboardTypeString).split("\n");
@@ -120,7 +241,6 @@ __webpack_require__.r(__webpack_exports__);
     layer.style.textTransform = sketchStyles[9];
     layer.style.fontVariant = sketchStyles[10];
     layer.style.shadows.enabled = sketchStyles[11];
-    console.log(sketchStyles);
 
     if (sketchStyles[11]) {
       layer.style.shadows = [{
@@ -144,7 +264,7 @@ function preprocessStyles(styleLines) {
 
       switch (prop) {
         case 'font-size':
-          sketchStyles[0] = parseFloat(val);
+          sketchStyles[0] = Math.round(parseFloat(val));
           break;
 
         case 'color':
@@ -152,7 +272,7 @@ function preprocessStyles(styleLines) {
           break;
 
         case 'line-height':
-          sketchStyles[2] = parseFloat(val);
+          sketchStyles[2] = Math.round(parseFloat(val));
           break;
 
         case 'font-weight':
@@ -283,7 +403,23 @@ function convertFontFamily(fonts) {
     fonts = fonts.substring(0, firstFont);
   }
 
-  return fonts.replace(/"|'/g, '');
+  fonts = fonts.replace(/"|'/g, '');
+  var bestFontScore = Infinity;
+  var bestFont;
+
+  for (var i = 0; i < systemFonts.count(); ++i) {
+    var fontScore = levenshtein(systemFonts[i].toLowerCase(), fonts.toLowerCase());
+
+    if (fontScore < bestFontScore) {
+      bestFont = systemFonts[i];
+      bestFontScore = fontScore;
+    }
+  }
+
+  console.log(fonts);
+  console.log(bestFont);
+  console.log(bestFontScore);
+  return bestFont;
 }
 
 function convertFontStyle(style) {

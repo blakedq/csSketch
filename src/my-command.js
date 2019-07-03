@@ -1,4 +1,6 @@
 import sketch from 'sketch'
+const levenshtein = require('js-levenshtein');
+const systemFonts = NSFontManager.sharedFontManager().availableFontFamilies();
 
 export default function() {
   const selectedLayers = sketch.getSelectedDocument().selectedLayers;
@@ -19,7 +21,6 @@ export default function() {
     layer.style.textTransform = sketchStyles[9];
     layer.style.fontVariant = sketchStyles[10];
     layer.style.shadows.enabled = sketchStyles[11];
-    console.log(sketchStyles);
     if (sketchStyles[11]) {
       layer.style.shadows = [
         {
@@ -42,13 +43,13 @@ function preprocessStyles(styleLines) {
       let val = declaration.slice(colon+1).trim();
       switch(prop)  {
         case 'font-size':
-          sketchStyles[0] = parseFloat(val);
+          sketchStyles[0] = Math.round(parseFloat(val));
           break;
         case 'color':
           sketchStyles[1] = val;
           break;
         case 'line-height':
-          sketchStyles[2] = parseFloat(val);
+          sketchStyles[2] = Math.round(parseFloat(val));
           break;
         case 'font-weight':
           sketchStyles[3] = convertWeight(val);
@@ -160,7 +161,20 @@ function convertFontFamily(fonts) {
   if(firstFont !== -1)  {
     fonts = fonts.substring(0,firstFont);
   }
-  return fonts.replace(/"|'/g,'');
+  fonts = fonts.replace(/"|'/g,'');
+  let bestFontScore = Infinity;
+  let bestFont;
+  for (let i = 0; i < systemFonts.count(); ++i) {
+    let fontScore = levenshtein(systemFonts[i].toLowerCase(), fonts.toLowerCase());
+    if (fontScore < bestFontScore) {
+      bestFont = systemFonts[i];
+      bestFontScore = fontScore;
+    }
+  }
+  console.log(fonts);
+  console.log(bestFont);
+  console.log(bestFontScore);
+  return bestFont;
 }
 
 function convertFontStyle(style)  {

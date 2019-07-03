@@ -23,5 +23,8 @@
   "devDependencies": {
     "@skpm/builder": "^0.7.0"
   },
-  "author": "blakedq <blakedquigley@gmail.com>"
+  "author": "blakedq <blakedquigley@gmail.com>",
+  "dependencies": {
+    "js-levenshtein": "^1.1.6"
+  }
 }
