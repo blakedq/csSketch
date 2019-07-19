@@ -240,7 +240,9 @@ var systemFonts = NSFontManager.sharedFontManager().availableFontFamilies();
     layer.style.kerning = sketchStyles[8];
     layer.style.textTransform = sketchStyles[9];
     layer.style.fontVariant = sketchStyles[10];
-    layer.style.shadows.enabled = sketchStyles[11];
+    layer.style.shadows = [{
+      enabled: sketchStyles[11]
+    }];
 
     if (sketchStyles[11]) {
       layer.style.shadows = [{
@@ -403,23 +405,20 @@ function convertFontFamily(fonts) {
     fonts = fonts.substring(0, firstFont);
   }
 
-  fonts = fonts.replace(/"|'/g, '');
-  var bestFontScore = Infinity;
-  var bestFont;
+  fonts = fonts.replace(/"|'/g, ''); // let bestFontScore = Infinity;
+  // let bestFont;
+  // for (let i = 0; i < systemFonts.count(); ++i) {
+  //   let fontScore = levenshtein(systemFonts[i].toLowerCase(), fonts.toLowerCase());
+  //   if (fontScore < bestFontScore) {
+  //     bestFont = systemFonts[i];
+  //     bestFontScore = fontScore;
+  //   }
+  // }
+  // console.log(fonts);
+  // console.log(bestFont);
+  // console.log(bestFontScore);
 
-  for (var i = 0; i < systemFonts.count(); ++i) {
-    var fontScore = levenshtein(systemFonts[i].toLowerCase(), fonts.toLowerCase());
-
-    if (fontScore < bestFontScore) {
-      bestFont = systemFonts[i];
-      bestFontScore = fontScore;
-    }
-  }
-
-  console.log(fonts);
-  console.log(bestFont);
-  console.log(bestFontScore);
-  return bestFont;
+  return fonts;
 }
 
 function convertFontStyle(style) {
